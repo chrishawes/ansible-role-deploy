@@ -1,0 +1,10 @@
+---
+deploy_user: www-data
+deploy_group: www-data
+deploy_folder_mode: 0755
+deploy_unarchive: true
+deploy_keep: 5
+deploy_pre_commands:
+  - "echo"
+deploy_post_commands:
+  - "echo"

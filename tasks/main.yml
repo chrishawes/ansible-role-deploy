@@ -1,0 +1,34 @@
+---
+- name: Run pre-deploy commands
+  shell: "{{ item }}"
+  with_items: deploy_pre_commands
+  ignore_errors: yes
+
+- name: Get date in to variable
+  shell: date +'%Y%m%d%H%M%S'
+  register: current_date
+
+- name: Create release directory
+  file: path="{{ deploy_dest }}/{{ current_date.stdout }}" state="directory" owner="{{ deploy_user }}" group="{{ deploy_group }}" mode="{{ deploy_folder_mode }}" recurse="yes"
+
+- name: Extract file to remote host
+  unarchive: src="{{ deploy_src_file }}" dest="{{ deploy_dest }}/{{ current_date.stdout }}"
+  when: deploy_unarchive
+
+- name: Copy file to remote host
+  copy: src="{{ deploy_src_file }}" dest="{{ deploy_dest }}/{{ current_date.stdout }}"
+  when: not deploy_unarchive
+
+- name: Create symlink
+  file: src="{{ deploy_dest }}/{{ current_date.stdout }}" dest="{{ deploy_link_dest }}" owner="{{ deploy_user }}" group="{{ deploy_group }}" state=link
+
+- name: Ensure owner of files
+  file: path="{{ deploy_dest }}/{{ current_date.stdout }}" owner="{{ deploy_user }}" group="{{ deploy_group }}"
+
+- name: Remove previous deploys
+  shell: "cd {{ deploy_dest }}/; ls -tQ | tail -n+{{ deploy_keep }} | xargs rm -rf"
+
+- name: Run pre-deploy commands
+  shell: "{{ item }}"
+  with_items: deploy_post_commands
+  ignore_errors: yes

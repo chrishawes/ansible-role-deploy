@@ -1,0 +1,16 @@
+---
+- name: Deploy artifact to server
+  hosts: default
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars:
+    deploy_src_file: "README.md"
+    deploy_dest: /var/deploy_test/releases
+    deploy_link_dest: /var/deploy_test/current
+    deploy_unarchive: false
+    keep: 3
+  roles:
+    - ansible-role-deploy
+
+
